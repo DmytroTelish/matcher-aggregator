@@ -1,0 +1,8 @@
+# Essential libraries for the project
+queue
+threading
+concurrent.futures
+
+# Additional utility libraries
+re
+os
