@@ -15,6 +15,8 @@ NAMES = [
 ERROR_COMPILING_REGEX = "Error compiling regex patterns:"
 ERROR_PROCESSING_LINES = "Error processing lines:"
 ERROR_FINDING_MATCHES = "Error finding matches:"
+LINE_ENDING = '\n'
+INITIAL_CHAR_OFFSET = 0
 
 
 def build_name_patterns() -> Dict[str, re.Pattern]:
@@ -29,30 +31,29 @@ class Matcher:
     def __init__(self, text_chunk: str, results_queue: Queue, start_line: int):
         self.text_chunk = text_chunk
         self.results_queue = results_queue
-        self.start_line = start_line
+        self.chunk_start_line = start_line
         self.name_patterns = build_name_patterns()
         self.results: Dict[str, List[Dict[str, int]]] = {}
 
-    def _process_match(self, name: str, line_number: int, char_offset: int) -> None:
+    def _process_match(self, name: str, char_pos_in_line: int) -> None:
         if name not in self.results:
             self.results[name] = []
-        self.results[name].append({"lineOffset": line_number, "charOffset": char_offset})
+        self.results[name].append({"lineOffset": self.chunk_start_line, "charOffset": char_pos_in_line})
 
-    def _process_line_for_matches(self, line: str, line_number: int, line_start_pos: int) -> None:
+    def _find_pattern_matches(self, line: str, line_offset_in_chunk: int) -> None:
+        cleaned_line = line.rstrip(LINE_ENDING)
         for name, pattern in self.name_patterns.items():
-            for match in pattern.finditer(line):
-                char_offset = line_start_pos + match.start()
-                self._process_match(name, line_number, char_offset)
+            for match in pattern.finditer(cleaned_line):
+                char_pos_in_line = line_offset_in_chunk + match.start()
+                self._process_match(name, char_pos_in_line)
 
     def process_lines_and_find_matches(self) -> None:
         try:
-            text_lines = self.text_chunk.splitlines(keepends=True)
-            line_number = self.start_line
-            line_start_pos = 0
+            text_lines = self.text_chunk.split(LINE_ENDING)
+            total_char_offset = INITIAL_CHAR_OFFSET
             for line in text_lines:
-                self._process_line_for_matches(line, line_number, line_start_pos)
-                line_number += 1
-                line_start_pos += len(line)
+                self._find_pattern_matches(line, total_char_offset)
+                total_char_offset += len(line)
         except Exception as e:
             print(f"{ERROR_PROCESSING_LINES} {e}")
 
