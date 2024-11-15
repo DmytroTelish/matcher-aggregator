@@ -34,7 +34,7 @@ Text Matcher-Aggregator is a Python-based multithreaded application designed for
 
 The following environment variables can be set to customize the behavior of the application:
 
-- `FILE_PATH`: Path to the text file to be processed (default is `big.txt`).
+- `FILE_PATH`: Path to the text file to be processed (default is `./big.txt`).
 - `CHUNK_SIZE`: Number of lines per chunk (default is `1000`).
 - `MAX_WORKERS`: Maximum number of worker threads (default is `5`).
 - `START_LINE`: Starting line for processing (default is `0`).
@@ -57,7 +57,7 @@ The following environment variables can be set to customize the behavior of the 
 3. **Set the environment variables (optional):**
 
     ```bash
-    export FILE_PATH=/path/to/your/big.txt
+    export FILE_PATH=/path/to/your/file.txt
     export CHUNK_SIZE=1000
     export MAX_WORKERS=5
     export START_LINE=0
@@ -131,7 +131,3 @@ class Matcher:
 def main():
     # Orchestrates the file reading, processing, and result aggregation
 ```
-
-## License
-
-This project is licensed under the MIT License. See the `LICENSE` file for details.
